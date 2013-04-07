@@ -1,0 +1,3 @@
+name = Domain Registration
+description = Restrict user registration to email addresses of particular domains
+core = 7.x
