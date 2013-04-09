@@ -14,7 +14,7 @@ function domain_registration_menu() {
     'description' => t('Set domains for registration'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('domain_registration_admin_form'),
-    'access callback' => TRUE,
+    'access arguments' => array('administer site configuration'),
   );
   return $items;
 }
