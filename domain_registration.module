@@ -64,6 +64,10 @@ function domain_registration_form_user_register_form_alter(&$form, &$form_state,
  * Checks if the domain in the email address is on a list of allowed domains.
  */
 function domain_registration_user_register_validate(&$form, &$form_state) {
+  // Ignore validation if mail is empty.
+  if (empty($form_state['values']['mail'])) {
+    return;
+  }
   $default_message = t('You are not allowed to register for an account on this site.');
   $mail = explode('@', $form_state['values']['mail']);
   $domains = variable_get('domain_registration', array());
