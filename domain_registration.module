@@ -39,7 +39,7 @@ function domain_registration_admin_form($form, &$form_state) {
     '#required' => TRUE,
     '#title' => t('Email domains'),
     '#default_value' => variable_get('domain_registration'),
-    '#description' => t('Enter the domains you wish to restrict registration. One entry per line in the format (e.g. something.com)'),
+    '#description' => t('Enter the domains you wish to restrict registration. One entry per line in the format (e.g. something.com). Wildcards are also supported (e.g. *.something.com) to match any subdomain.'),
   );
   $form['domain_registration_message'] = array(
     '#type' => 'textfield',
