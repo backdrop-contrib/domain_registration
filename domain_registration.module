@@ -72,21 +72,38 @@ function domain_registration_user_register_validate(&$form, &$form_state) {
   $mail = explode('@', $form_state['values']['mail']);
   $domains = variable_get('domain_registration', array());
   $domains = explode("\r\n", $domains);
+
+  // Only attempt to validate if we have a list of domains.
   if (!empty($domains)) {
+
+    // Determine if we have matches.
+    $match = count(array_filter($domains,
+      function($domain) use (&$mail){
+        return domain_registration_wildcard_match($domain, $mail[1]);
+      }
+    ));
+
     switch (variable_get('domain_registration_method', 0)) {
       // Allow only domains listed to register.
       case 0:
-        if (!in_array($mail[1], $domains)) {
+        if (!$match) {
           form_set_error('account', variable_get('domain_registration_message', $default_message));
         }
         break;
 
       // Prevent domains listed from registering.
       case 1:
-        if (in_array($mail[1], $domains)) {
+        if ($match) {
           form_set_error('account', variable_get('domain_registration_message', $default_message));
         }
         break;
     }
   }
+}
+
+/**
+ * Pattern Match wildcard addresses.
+ */
+function domain_registration_wildcard_match($pattern, $string) {
+  return preg_match("#^" . strtr(preg_quote($pattern, '#'), array('\*' => '.*', '\?' => '.')) . "$#i", $string);
 }
