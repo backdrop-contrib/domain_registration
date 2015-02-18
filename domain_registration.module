@@ -4,6 +4,10 @@
  * Domain Registration module file.
  */
 
+
+define('DOMAIN_REGISTRATION_ALLOW', 0);
+define('DOMAIN_REGISTRATION_DENY', 1);
+
 /**
  * Implements hook_menu().
  */
@@ -23,15 +27,15 @@ function domain_registration_menu() {
  */
 function domain_registration_admin_form($form, &$form_state) {
   $options = array(
-    0 => t('Allow only domains listed below to register'),
-    1 => t('Prevent domains listed below from registering'),
+    DOMAIN_REGISTRATION_ALLOW => t('Allow only domains listed below to register'),
+    DOMAIN_REGISTRATION_DENY => t('Prevent domains listed below from registering'),
   );
   $form['domain_registration_method'] = array(
     '#type' => 'radios',
     '#required' => TRUE,
     '#options' => $options,
     '#title' => t('Restriction Type'),
-    '#default_value' => variable_get('domain_registration_method', 0),
+    '#default_value' => variable_get('domain_registration_method', DOMAIN_REGISTRATION_ALLOW),
     '#description' => t('Choose which method you would like the domains list to operate. Only allow domains listed to register, or prevent domains listed from registering.'),
   );
   $form['domain_registration'] = array(
@@ -69,7 +73,7 @@ function domain_registration_user_register_validate(&$form, &$form_state) {
   if (!empty($errors['mail'])) {
     return;
   }
-  $default_message = t('You are not allowed to register for an account on this site.');
+  $default_message = t('You are not allowed to register for this site.');
   $mail = explode('@', $form_state['values']['mail']);
   $domains = variable_get('domain_registration', array());
   $domains = explode("\r\n", $domains);
@@ -84,7 +88,7 @@ function domain_registration_user_register_validate(&$form, &$form_state) {
       }
     ));
 
-    switch (variable_get('domain_registration_method', 0)) {
+    switch (variable_get('domain_registration_method', DOMAIN_REGISTRATION_ALLOW)) {
       // Allow only domains listed to register.
       case 0:
         if (!$match) {
