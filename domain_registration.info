@@ -1,5 +1,6 @@
 name = Domain Registration
 description = Restrict user registration to email addresses of particular domains
 core = 7.x
+configure = admin/config/system/domain_register
 files[] = domain_registration.module
 files[] = domain_registration.test
