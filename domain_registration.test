@@ -35,6 +35,20 @@ class DomainRegistrationTest extends DrupalWebTestCase {
     $this->assertText(t('A welcome message'), t('User registered successfully.'));
   }
 
+  public function testAllowEmptyPatternMatch() {
+    variable_set('domain_registration_method', DOMAIN_REGISTRATION_ALLOW);
+    variable_set('domain_registration', '');
+
+    // Get the user data for registration.
+    $edit = array(
+      'name' => $this->randomName(),
+      'mail' => $this->randomName() . '@example.com',
+    );
+    // Attempt to register a user with a whitelist email.
+    $this->drupalPost('user/register', $edit, t('Create new account'));
+    $this->assertText(t('A welcome message'), t('User registered successfully.'));
+  }
+
   public function testAllowWildcardMatch() {
     variable_set('domain_registration_method', DOMAIN_REGISTRATION_ALLOW);
     variable_set('domain_registration', '*.example.com');

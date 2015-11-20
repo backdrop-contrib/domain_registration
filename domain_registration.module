@@ -87,10 +87,11 @@ function domain_registration_user_register_validate(&$form, &$form_state) {
   $default_message = t('You are not allowed to register for this site.');
   $mail = explode('@', $form_state['values']['mail']);
   $domains = variable_get('domain_registration', array());
-  $domains = explode("\r\n", $domains);
 
   // Only attempt to validate if we have a list of domains.
   if (!empty($domains)) {
+
+    $domains = explode("\r\n", $domains);
 
     // Determine if we have matches.
     $match = count(array_filter($domains,
