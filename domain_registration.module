@@ -4,7 +4,6 @@
  * Domain Registration module file.
  */
 
-
 define('DOMAIN_REGISTRATION_ALLOW', 0);
 define('DOMAIN_REGISTRATION_DENY', 1);
 
@@ -17,9 +16,21 @@ function domain_registration_menu() {
     'description' => 'Set domains for registration',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('domain_registration_admin_form'),
-    'access arguments' => array('administer site configuration'),
+    'access arguments' => array('administer domain registration'),
   );
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function domain_registration_permission() {
+  return array(
+    'administer domain registration' => array(
+      'title' => t('Administer domain registration'),
+      'description' => t('Allows a user to administer the domain registration settings.'),
+    ),
+  );
 }
 
 /**
@@ -64,7 +75,7 @@ function domain_registration_form_user_register_form_alter(&$form, &$form_state,
 
 /**
  * Custom validation function.
- * 
+ *
  * Checks if the domain in the email address is on a list of allowed domains.
  */
 function domain_registration_user_register_validate(&$form, &$form_state) {
