@@ -34,6 +34,23 @@ function domain_registration_permission() {
 }
 
 /**
+ * Implements hook_variable_info().
+ */
+function domain_registration_variable_info($options) {
+
+  $variables = array();
+
+  $variables['domain_registration_message'] = array(
+    'type' => 'string',
+    'title' => t('Domain Registration Error message'),
+    'description' => t('This error message will be displayed when the email the user is trying to register with does not validate'),
+    'localize' => TRUE,
+  );
+
+  return $variables;
+}
+
+/**
  * Administration form for domain registration.
  */
 function domain_registration_admin_form($form, &$form_state) {
@@ -60,6 +77,8 @@ function domain_registration_admin_form($form, &$form_state) {
     '#type' => 'textfield',
     '#required' => TRUE,
     '#title' => t('Error message'),
+    '#maxlength' => 512,
+    '#size' => 120,
     '#default_value' => variable_get('domain_registration_message', t('You are not allowed to register for this site.')),
     '#description' => t('Enter the error message you want the user to see if the email address does not validate.'),
   );
