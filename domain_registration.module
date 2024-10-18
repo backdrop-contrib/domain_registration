@@ -108,7 +108,7 @@ function domain_registration_user_register_validate(&$form, &$form_state) {
   $domains = variable_get('domain_registration', array());
 
   // Only attempt to validate if we have a list of domains.
-  if (!empty($domains)) {
+  if (!empty($domains) && isset($mail[1])) {
 
     $domains = explode("\r\n", $domains);
 
