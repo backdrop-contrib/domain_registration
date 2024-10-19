@@ -3,15 +3,25 @@
  * @file
  * Domain Registration module file.
  */
-
 define('DOMAIN_REGISTRATION_ALLOW', 0);
 define('DOMAIN_REGISTRATION_DENY', 1);
+
+/**
+ * Implements hook_config_info().
+ */
+function domain_registration_config_info() {
+  $prefixes['domain_registration.settings'] = array(
+    'label' => t('Settings for Domain Registration module.'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
 
 /**
  * Implements hook_menu().
  */
 function domain_registration_menu() {
-  $items['admin/config/system/domain_register'] = array(
+  $items['admin/config/people/domain_registration'] = array(
     'title' => 'Domain registration',
     'description' => 'Set domains for registration',
     'page callback' => 'drupal_get_form',
@@ -34,26 +44,12 @@ function domain_registration_permission() {
 }
 
 /**
- * Implements hook_variable_info().
- */
-function domain_registration_variable_info($options) {
-
-  $variables = array();
-
-  $variables['domain_registration_message'] = array(
-    'type' => 'string',
-    'title' => t('Domain Registration Error message'),
-    'description' => t('This error message will be displayed when the email the user is trying to register with does not validate'),
-    'localize' => TRUE,
-  );
-
-  return $variables;
-}
-
-/**
  * Administration form for domain registration.
  */
 function domain_registration_admin_form($form, &$form_state) {
+  $config = config('domain_registration.settings');
+  $form['#config'] = 'domain_registration.settings';
+
   $options = array(
     DOMAIN_REGISTRATION_ALLOW => t('Allow only domains listed below to register'),
     DOMAIN_REGISTRATION_DENY => t('Prevent domains listed below from registering'),
@@ -63,15 +59,15 @@ function domain_registration_admin_form($form, &$form_state) {
     '#required' => TRUE,
     '#options' => $options,
     '#title' => t('Restriction Type'),
-    '#default_value' => variable_get('domain_registration_method', DOMAIN_REGISTRATION_ALLOW),
-    '#description' => t('Choose which method you would like the domains list to operate. Only allow domains listed to register, or prevent domains listed from registering.'),
+    '#default_value' => $config->get('method'),
+    '#description' => t('Choose how the domains list operates. Only allow domains listed to register, or prevent domains listed from registering.'),
   );
   $form['domain_registration'] = array(
     '#type' => 'textarea',
     '#required' => TRUE,
     '#title' => t('Email domains'),
-    '#default_value' => variable_get('domain_registration'),
-    '#description' => t('Enter the domains you wish to restrict registration. One entry per line in the format (e.g. something.com). Wildcards are also supported (e.g. *.something.com) to match any subdomain.'),
+    '#default_value' => $config->get('domain_list'),
+    '#description' => t('Enter email domains to restrict registration, one entry per line. Wildcards are supported to match any subdomain. Examples: <em>something.com</em> or <em>*.something.com</em>'),
   );
   $form['domain_registration_message'] = array(
     '#type' => 'textfield',
@@ -79,9 +75,10 @@ function domain_registration_admin_form($form, &$form_state) {
     '#title' => t('Error message'),
     '#maxlength' => 512,
     '#size' => 120,
-    '#default_value' => variable_get('domain_registration_message', t('You are not allowed to register for this site.')),
-    '#description' => t('Enter the error message you want the user to see if the email address does not validate.'),
+    '#default_value' => $config->get('message'),
+    '#description' => t('Error message to display if the email address does not validate.'),
   );
+
   return system_settings_form($form);
 }
 
@@ -93,44 +90,46 @@ function domain_registration_form_user_register_form_alter(&$form, &$form_state,
 }
 
 /**
- * Custom validation function.
- *
- * Checks if the domain in the email address is on a list of allowed domains.
+ * Validation handler. Checks if the email domain is on a list of domains.
  */
 function domain_registration_user_register_validate(&$form, &$form_state) {
+  $config = config('domain_registration.settings');
+
   // Ignore validation if mail already has an error.
   $errors = form_get_errors();
   if (!empty($errors['mail'])) {
     return;
   }
-  $default_message = t('You are not allowed to register for this site.');
   $mail = explode('@', $form_state['values']['mail']);
-  $domains = variable_get('domain_registration', array());
+  $email_domain = $mail[1];
+  $domain_list = $config->get('domain_list');
+  $match = FALSE;
 
   // Only attempt to validate if we have a list of domains.
-  if (!empty($domains) && isset($mail[1])) {
+  if (!empty($domain_list) && isset($email_domain)) {
 
-    $domains = explode("\r\n", $domains);
+    $domain_list = explode("\r\n", $domain_list);
 
-    // Determine if we have matches.
-    $match = count(array_filter($domains,
-      function($domain) use (&$mail){
-        return domain_registration_wildcard_match($domain, $mail[1]);
+    foreach ($domain_list as $listed_domain) {
+      // Determine if we have matches.
+      $match = domain_registration_wildcard_match($listed_domain, $email_domain);
+      if ($match) {
+        break;
       }
-    ));
+    }
 
-    switch (variable_get('domain_registration_method', DOMAIN_REGISTRATION_ALLOW)) {
+    switch ($config->get('method')) {
       // Allow only domains listed to register.
       case 0:
         if (!$match) {
-          form_set_error('account', variable_get('domain_registration_message', $default_message));
+          form_set_error('account', $config->get('message'));
         }
         break;
 
       // Prevent domains listed from registering.
       case 1:
         if ($match) {
-          form_set_error('account', variable_get('domain_registration_message', $default_message));
+          form_set_error('account', $config->get('message'));
         }
         break;
     }

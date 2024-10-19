@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Install, Uninstall, and Update functions.
+ */
+
+/**
+ * Converts Domain Registration variables to config.
+ */
+function domain_registration_update_1000(&$sandbox) {
+  // Switch from variables to config.
+  $config = config('domain_registration.settings');
+  $config->set('method', update_variable_get('domain_registration_method'));
+  $config->set('domain_list', update_variable_get('domain_registration'));
+  $config->set('message', update_variable_get('domain_registration_message'));
+  $config->save();
+
+  // Delete the variables after update.
+  update_variable_del('domain_registration_method');
+  update_variable_del('domain_registration');
+  update_variable_del('domain_registration_message');
+
+  return t('Domain Registration variables have been converted to config.');
+}

@@ -1,0 +1,7 @@
+{
+    "_module": "domain_registration",
+    "_config_name": "domain_registration.settings",
+    "method": "1",
+    "domain_list": "",
+    "message": "This email address is not allowed to register."
+}

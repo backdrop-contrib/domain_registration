@@ -1,0 +1,5 @@
+[DomainRegistrationTest]
+name = Domain Registration
+description = Test if the Domain Registration module properly allows and denies specified domains
+group = Domain Registration
+file = domain_registration.test

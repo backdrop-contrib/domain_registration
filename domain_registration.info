@@ -1,6 +1,6 @@
+type = module
 name = Domain Registration
-description = Restrict user registration to email addresses of particular domains
-core = 7.x
-configure = admin/config/system/domain_register
-files[] = domain_registration.module
-files[] = domain_registration.test
+description = Allows or restricts registration based on an email address domain.
+backdrop = 1.x
+
+configure = admin/config/people/domain_registration
