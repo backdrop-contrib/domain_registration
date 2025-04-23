@@ -54,7 +54,7 @@ function domain_registration_admin_form($form, &$form_state) {
     DOMAIN_REGISTRATION_ALLOW => t('Allow only domains listed below to register'),
     DOMAIN_REGISTRATION_DENY => t('Prevent domains listed below from registering'),
   );
-  $form['domain_registration_method'] = array(
+  $form['method'] = array(
     '#type' => 'radios',
     '#required' => TRUE,
     '#options' => $options,
@@ -62,14 +62,14 @@ function domain_registration_admin_form($form, &$form_state) {
     '#default_value' => $config->get('method'),
     '#description' => t('Choose how the domains list operates. Only allow domains listed to register, or prevent domains listed from registering.'),
   );
-  $form['domain_registration'] = array(
+  $form['domain_list'] = array(
     '#type' => 'textarea',
     '#required' => TRUE,
     '#title' => t('Email domains'),
     '#default_value' => $config->get('domain_list'),
     '#description' => t('Enter email domains to restrict registration, one entry per line. Wildcards are supported to match any subdomain. Examples: <em>something.com</em> or <em>*.something.com</em>'),
   );
-  $form['domain_registration_message'] = array(
+  $form['message'] = array(
     '#type' => 'textfield',
     '#required' => TRUE,
     '#title' => t('Error message'),
